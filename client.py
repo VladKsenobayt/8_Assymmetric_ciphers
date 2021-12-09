@@ -15,14 +15,10 @@ def deshifr(shifrovka, key):
 def xor_str(a, b):
     return ''.join([chr(ord(x)^ord(y)) for x, y in zip(a, cycle(b))])#'''
 
-
-def gener(i, key_prim, key_publ_m):
-    
-    while i<3:
-        i += 1
-        #print(i)
-        if i == 1:
+from time import sleep
+def gener(key_prim, key_publ_m):
                 msg = str(key_publ_m)
+                sleep(0.1)
                 sock.send(msg.encode('utf-8'))
                 try:
                     key_publ_s = int(sock.recv(1024))
@@ -31,20 +27,15 @@ def gener(i, key_prim, key_publ_m):
                     global flag
                     flag = False
                     return(False)
-        elif i == 2:
                 key_part_m = calc_key(key_publ_m, key_prim, key_publ_s) 
                 msg = str(key_part_m)
+                sleep(0.1)
                 sock.send(msg.encode('utf-8'))
                 key_part_s = int(sock.recv(1024))
-        elif i == 3:
                 key_full_m = calc_key(key_part_s, key_prim, key_publ_s)
-                #msg = str(key_full_m)
-                #sock.send(msg.encode('utf-8'))
-                #key_full_s = int(sock.recv(1024))
-                #print(key_full_s)
                 with open ('keyscl'+str(pr)+'.txt','w') as f:
                     f.write(str(key_full_m))#key_full_s))
-    return key_full_m#key_full_s
+                return key_full_m#key_full_s
 
 def calc_key(key_g, key_ab, key_p):
     return key_g ** key_ab % key_p 
@@ -93,11 +84,11 @@ if flag:
         key_publ_m = 197#int(sock.recv(1024))#197
         i = 0
         #msg = ''
-        key_full_s = str(gener(i, key_prim, key_publ_m))
+        key_full_s = str(gener(key_prim, key_publ_m))
 
 if flag:     
     port = deshifr(sock.recv(1024).decode('utf-8'),key_full_s)
-    #po
+    #port = coding(sock.recv(1024).decode('utf-8'),-key_full_s)
     sock.close()
 if flag:
     sock = socket.socket()
