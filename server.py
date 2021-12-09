@@ -19,41 +19,35 @@ def xor_str(a, b):
     return ''.join([chr(ord(x)^ord(y)) for x, y in zip(a, cycle(b))])#'''
 
 
-
-
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
         s.bind(('', 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
-
-def gener(i, key_prim, key_publ_m):
-    
-    while i<3:
-        
-        i += 1
-        #print(i)
-        if i == 1:
+from time import sleep
+def gener(key_prim, key_publ_m):
                 key_publ_s = int(conn.recv(1024))
                 if check(key_publ_s):
                     msg = str(key_publ_m)
+                    sleep(0.1)
                     conn.send(msg.encode('utf-8'))
                 else:
                     print("Error: KeyNotCorrect")
                     global flag
                     flag = False
                     return(False)
-        elif i == 2:
+
                 key_part_s = int(conn.recv(1024))
                 key_part_m = calc_key(key_publ_s, key_prim, key_publ_m)
                 msg = str(key_part_m)
+                sleep(0.1)
                 conn.send(msg.encode('utf-8'))
-        elif i == 3:
+
                 #key_full_s = int(conn.recv(1024))
                 key_full_m = calc_key(key_part_s, key_prim, key_publ_m)
                 with open ('keyserv'+str(addr)+'.txt','w') as f:
                     f.write(str(key_full_m))
-    return key_full_m
+                return key_full_m
 def calc_key(key_g, key_ab, key_p):
     return key_g ** key_ab % key_p
 
@@ -83,9 +77,6 @@ def check(key_publ_s):
                 i = True
     return i
 
-
-
-
 flag=True
 
 
@@ -111,10 +102,8 @@ try:
 except:
     key_publ_m = 151
     key_prim = 157
-    #conn.send(str(key_publ_m).encode('utf-8'))
-    i = 0
-    #msg = ''
-    key_full_m = str(gener(i, key_prim, key_publ_m))
+
+    key_full_m = str(gener(key_prim, key_publ_m))
 #print(flag)
 if flag:
     print('user addr:', addr)
